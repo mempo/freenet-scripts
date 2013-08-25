@@ -11,6 +11,7 @@ websiteDeployLiveDir="/var/www/freenet-website"
 # Webserver directory for the testing website.
 websiteDeployTestingDir="/var/www/freenet-website-testing"
 
+# TODO: Absolute base dir instead of relative.
 # Target directory for generated files.
 releaseDir="../FreenetReleased"
 

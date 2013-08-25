@@ -114,6 +114,7 @@ readConfig
 
 # Make temporary build directory to hold installer source, dependencies,
 # and Wine prefix. This will be wiped on exit.
+# TODO: Common function.
 buildDir=$(mktemp -d) || exit
 
 function rmTemp {
@@ -153,6 +154,7 @@ cp "$freenetExtPath"                                 "res/install_node/freenet-e
 cp "$releaseDir/dependencies/bcprov-jdk15on-149.jar" "res/install_node/"                || exit
 cp "$releaseDir/dependencies/wrapper.jar"            "res/install_node/wrapper/"        || exit
 cp "$releaseDir/seednodes.fref"                      "res/install_node/"                || exit
+# TODO: Is this an appropriate place to have a bundled plugin list? 
 for x in JSTUN KeyUtils ThawIndexBrowser UPnP Library; do
   cp "$releaseDir/${x}.jar"                          "res/install_node/plugins/"        || exit
 done

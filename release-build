@@ -1,11 +1,15 @@
 #!/bin/bash
 # Release a Freenet build.
 # Everything here can be safely re-run except for tag-build. If you get a failure after that, comment out tag-build before running this script again.
+# TODO: Avoid failure later on, or make it possible to re-run without modifying this script.
+# TODO: So usage is "release-build buildnumber"? A --help would be nice.
 BUILD=$1
 source freenet-scripts-common || exit
 readConfig || exit
+# Similar behavior between ssh and gpg agent?
 #eval `gpg-agent --daemon`
 
+# TODO: Put this in freenet-scripts-common?
 if [ "$useSshAgent" == "1" ]; then
     eval $(ssh-agent -s)
     ssh-add
@@ -23,30 +27,30 @@ tag-build $BUILD || exit 1
 # Get build info after tagging the new build.
 getBuildInfo
 echo Releasing build $buildNumber
+
+# TODO: Eventually allow releasing either a build or snapshot. Not an immediate goal.
 release-fred --build || exit 2
 release-installer || exit 3
 release-wininstaller || exit 4
+# TODO: Google Code is shutting down - move to Google Drive?
+# TODO: Is this only for snapshots?
 upload-snapshot-googlecode || exit 5
+
 echo Now please test the new build.
 echo Deploy the build only when:
 echo 1: You have tested the new build and are satisfied that it works, and
+# TODO: 9482 effectively assumes there's already something (probably another node) bound to 9481.
 echo 2: You have a node running on FCP port 9482, without excessive logging - this should NOT be your normal development node.
 echo The test node you just installed will do fine.
 java -jar ${releaseDir}/new_installer_offline_${buildNumber}.jar || exit 6
-echo -n "Perform release [y/N]?"
-read response
-if [[ $(echo "$response" | tr '[:upper:]' '[:lower:]') != "y" ]]; then
-   echo "Aborting release."
-   exit 7
-fi
+
+require "Perform release?"
 echo Performing final release.
 remote-deploy-website
-echo "Final chance: Deploy to auto-update? [y/N]?"
-read response
-if [[ $(echo "$response" | tr '[:upper:]' '[:lower:]') != "y" ]]; then
-   echo "Aborting release."
-   exit 8
-fi
+
+require "Final chance: Deploy to auto-update?"
 insert-update || exit 9
+# TODO: Is there an equivalent to ssh-agent's -k?
 #killall gpg-agent
+
 echo All done.
